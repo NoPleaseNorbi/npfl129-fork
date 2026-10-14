@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+#TEAM MEMBERS:
+# a652f90b-2220-11ec-986f-f39926f24a9c
+# 4ae50bd7-2516-11ec-986f-f39926f24a9c
+# 5212d2e4-2516-11ec-986f-f39926f24a9c
 import argparse
 
 import numpy as np
@@ -19,10 +23,12 @@ parser.add_argument("--test_size", default=0.5, type=lambda x: int(x) if x.isdig
 
 def main(args: argparse.Namespace) -> tuple[np.ndarray, np.ndarray]:
     dataset = getattr(sklearn.datasets, "load_{}".format(args.dataset))()
-
+    target = dataset.target
+    data = dataset.data
     # TODO: Split the dataset into a train set and a test set.
     # Use `sklearn.model_selection.train_test_split` method call, passing
     # arguments `test_size=args.test_size, random_state=args.seed`.
+    train_data, test_data, train_target, test_target = sklearn.model_selection.train_test_split(data, target, test_size=args.test_size, random_state=args.seed)
 
     # TODO: Process the input columns in the following way:
     #
@@ -40,13 +46,24 @@ def main(args: argparse.Namespace) -> tuple[np.ndarray, np.ndarray]:
     # In the output, first there should be all the one-hot categorical features,
     # and then the real-valued features. To process different dataset columns
     # differently, you can use `sklearn.compose.ColumnTransformer`.
-
+    int_col_helper = np.all(train_data == np.floor(train_data), axis=0)
+    int_columns = np.where(int_col_helper)[0]
+    real_columns = np.where(~int_col_helper)[0]
+    transformer = sklearn.compose.ColumnTransformer(transformers=[
+        ('t1',sklearn.preprocessing.OneHotEncoder(sparse_output=False, handle_unknown="ignore"), int_columns),
+        ('t2', sklearn.preprocessing.StandardScaler(), real_columns)
+        ])
+    transformed_train_data = transformer.fit_transform(train_data)
+    transformed_test_data = transformer.transform(test_data)
     # TODO: To the current features, append polynomial features of order 2.
     # If the input values are `[a, b, c, d]`, you should append
     # `[a^2, ab, ac, ad, b^2, bc, bd, c^2, cd, d^2]`. You can generate such polynomial
     # features either manually, or you can employ the provided transformer
     #   sklearn.preprocessing.PolynomialFeatures(2, include_bias=False)
     # which appends such polynomial features of order 2 to the given features.
+    preprocessor = sklearn.preprocessing.PolynomialFeatures(2, include_bias=False)
+    preprocessed_train_data = preprocessor.fit_transform(transformed_train_data)
+    preprocessed_test_data = preprocessor.transform(transformed_test_data)
 
     # TODO: You can wrap all the feature processing steps into one transformer
     # by using `sklearn.pipeline.Pipeline`. Although not strictly needed, it is
@@ -57,8 +74,8 @@ def main(args: argparse.Namespace) -> tuple[np.ndarray, np.ndarray]:
     # Then transform the training data into `train_data` (with a `transform` call;
     # however, you can combine the two methods into a single `fit_transform` call).
     # Finally, transform testing data to `test_data`.
-    train_data = ...
-    test_data = ...
+    train_data = preprocessed_train_data
+    test_data = preprocessed_test_data
 
     return train_data[:5], test_data[:5]
 

@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+#TEAM MEMBERS:
+# a652f90b-2220-11ec-986f-f39926f24a9c
+# 4ae50bd7-2516-11ec-986f-f39926f24a9c
+# 5212d2e4-2516-11ec-986f-f39926f24a9c
 import argparse
 
 import numpy as np
@@ -18,28 +22,30 @@ def main(args: argparse.Namespace) -> float:
     dataset = sklearn.datasets.load_diabetes()
 
     # The input data are in `dataset.data`, targets are in `dataset.target`.
-
+    target = dataset.target
+    data = dataset.data
     # If you want to learn about the dataset, you can print some information
     # about it using `print(dataset.DESCR)`.
 
     # TODO: Append a constant feature with value 1 to the end of all input data.
     # Then we do not need to explicitly represent bias - it becomes the last weight.
-    ...
+    sample_size = data.shape[0]
+    data = np.c_[data, np.ones(sample_size)]
 
     # TODO: Split the dataset into a train set and a test set.
     # Use `sklearn.model_selection.train_test_split` method call, passing
     # arguments `test_size=args.test_size, random_state=args.seed`.
-    ...
+    train_data, test_data, train_target, test_target = sklearn.model_selection.train_test_split(data, target, test_size=args.test_size, random_state=args.seed)
+    print(train_data, test_data, train_data, test_target)
 
     # TODO: Solve the linear regression using the algorithm from the lecture,
     # explicitly computing the matrix inverse (using `np.linalg.inv`).
-    ...
-
+    weight = np.matmul(np.matmul(np.linalg.inv(np.matmul(np.transpose(train_data), train_data)),np.transpose(train_data),),train_target)
     # TODO: Predict target values on the test set.
-    ...
+    target_values = np.matmul(test_data, weight)
 
     # TODO: Manually compute root mean square error on the test set predictions.
-    rmse = ...
+    rmse = np.sqrt(np.mean((target_values - test_target)**2))
 
     return rmse
 

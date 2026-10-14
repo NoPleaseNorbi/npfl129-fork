@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+#TEAM MEMBERS:
+# a652f90b-2220-11ec-986f-f39926f24a9c
+# 4ae50bd7-2516-11ec-986f-f39926f24a9c
+# 5212d2e4-2516-11ec-986f-f39926f24a9c
 import argparse
 
 import numpy as np
@@ -21,30 +25,34 @@ def main(args: argparse.Namespace) -> list[float]:
     # Create artificial noisy data.
     xs = np.linspace(0, 7, num=args.data_size)
     ys = np.sin(xs) + np.random.RandomState(args.seed).normal(0, 0.2, size=args.data_size)
-
+    print(xs)
     rmses = []
+    features = np.zeros((args.data_size, 0))
+    # print(features.shape)
     for order in range(1, args.range + 1):
         # TODO: Create features `(x^1, x^2, ..., x^order)`, preferably in this ordering.
         # Note that you can just append `x^order` to the features from the previous iteration.
-        ...
+        features = np.c_[features, np.power(xs, order)]
+        # print(features)
 
         # TODO: Split the data into a train set and a test set.
         # Use `sklearn.model_selection.train_test_split` method call, passing
         # arguments `test_size=args.test_size, random_state=args.seed`.
-        ...
+        train_data, test_data, train_target, test_target = sklearn.model_selection.train_test_split(features, ys, test_size=args.test_size, random_state=args.seed)
+        print(train_data, test_data, train_data, test_target)
 
         # TODO: Fit a linear regression model `sklearn.linear_model.LinearRegression(tol=1e-15)`
         # on the train set using the `fit` method. We use a stricter tolerance `tol=1e-15`
         # as the default tolerance is not sufficient when using features of higher order.
-        model = ...
+        model = sklearn.linear_model.LinearRegression(tol=1e-15).fit(train_data, train_target)
 
         # TODO: Predict targets on the test set using the `predict` method of the trained model.
-        ...
+        result = model.predict(test_data)
 
         # TODO: Compute root mean square error on the test set predictions.
         # You can either do it manually, or you can look at the metrics offered
         # by the `sklearn.metrics` module.
-        rmse = ...
+        rmse = np.sqrt(np.mean((result - test_target)**2))
 
         rmses.append(rmse)
 
