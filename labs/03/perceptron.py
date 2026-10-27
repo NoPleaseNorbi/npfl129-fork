@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+#TEAM MEMBERS:
+# a652f90b-2220-11ec-986f-f39926f24a9c
+# 4ae50bd7-2516-11ec-986f-f39926f24a9c
+# 5212d2e4-2516-11ec-986f-f39926f24a9c
 import argparse
 
 import numpy as np
@@ -25,12 +29,14 @@ def main(args: argparse.Namespace) -> np.ndarray:
 
     # TODO: Append a constant feature with value 1 to the end of all input data.
     # Then we do not need to explicitly represent bias - it becomes the last weight.
+    data = np.c_[data, np.ones(data.shape[0])]
 
     # Generate initial perceptron weights.
     weights = np.zeros(data.shape[1])
 
     done = False
     while not done:
+        done = True
         permutation = generator.permutation(data.shape[0])
 
         # TODO: Implement the perceptron algorithm, notably one iteration
@@ -38,7 +44,12 @@ def main(args: argparse.Namespace) -> np.ndarray:
         # training data iteration, perform the required updates to the `weights`
         # for incorrectly classified examples. If all training instances are
         # correctly classified, set `done=True`, otherwise set `done=False`.
-
+        for i in permutation:
+            y = np.matmul(data[i], weights)
+            if (target[i] * y) <= 0:
+                done = False
+                weights += target[i] * data[i]
+        
         if args.plot and not done:
             import matplotlib.pyplot as plt
             if args.plot is not True:

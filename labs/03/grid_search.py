@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+#TEAM MEMBERS:
+# a652f90b-2220-11ec-986f-f39926f24a9c
+# 4ae50bd7-2516-11ec-986f-f39926f24a9c
+# 5212d2e4-2516-11ec-986f-f39926f24a9c
 import argparse
 
 import sklearn.datasets
@@ -21,12 +25,15 @@ def main(args: argparse.Namespace) -> float:
     dataset = sklearn.datasets.load_digits()
     dataset.target = dataset.target % 2
 
+    target = dataset.target
+    data = dataset.data
     # If you want to learn about the dataset, you can print some information
     # about it using `print(dataset.DESCR)`.
 
     # TODO: Split the dataset into a train set and a test set.
     # Use `sklearn.model_selection.train_test_split` method call, passing
     # arguments `test_size=args.test_size, random_state=args.seed`.
+    train_data, test_data, train_target, test_target = sklearn.model_selection.train_test_split(data, target, test_size=args.test_size, random_state=args.seed)
 
     # TODO: Create a pipeline, which
     # 1. passes the inputs through `sklearn.preprocessing.MinMaxScaler()`,
@@ -43,8 +50,16 @@ def main(args: argparse.Namespace) -> float:
     # For the best combination of parameters, compute the test set accuracy.
     #
     # The easiest way is to use `sklearn.model_selection.GridSearchCV`.
-    test_accuracy = ...
-
+    pipeline = sklearn.pipeline.Pipeline ([
+        ('minmax', sklearn.preprocessing.MinMaxScaler()),
+        ('polyn', sklearn.preprocessing.PolynomialFeatures()),
+        ('logreg', sklearn.linear_model.LogisticRegression(random_state=args.seed))
+    ])
+    cv = sklearn.model_selection.StratifiedKFold(n_splits=5)
+    pipeline_dict = {"polyn__degree":[1, 2], "logreg__C": [0.01, 1, 100], "logreg__solver": ["lbfgs", "sag"]}
+    model = sklearn.model_selection.GridSearchCV(cv=cv, param_grid=pipeline_dict, estimator=pipeline)
+    model.fit(train_data, train_target)
+    test_accuracy = sklearn.metrics.accuracy_score(test_target, model.predict(test_data))
     # If `model` is a fitted `GridSearchCV`, you can use the following code
     # to show the results of all the hyperparameter values evaluated:
     #   for rank, accuracy, params in zip(model.cv_results_["rank_test_score"],

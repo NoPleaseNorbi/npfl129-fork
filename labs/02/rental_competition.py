@@ -107,9 +107,6 @@ def main(args: argparse.Namespace) -> Optional[npt.ArrayLike]:
                 average += l2 * weights_with_bias_set_to_zero
                 weights = weights - learning_rate * average
 
-            print(np.sqrt(np.mean((np.matmul(preprocessed_test_data, weights) - test_target)**2)))
-
-
 
         model = {
             "weights": weights,
@@ -117,7 +114,10 @@ def main(args: argparse.Namespace) -> Optional[npt.ArrayLike]:
             "polynomial": preprocessor
         }
         rmse = np.sqrt(np.mean((np.matmul(preprocessed_test_data, weights) - test_target)**2))
+        rmse2 = np.sqrt(np.mean((np.matmul(preprocessed_train_data, weights) - train_target)**2))
         print(rmse)
+        print(rmse2)
+
         
         # Serialize the model.
         with lzma.open(args.model_path, "wb") as model_file:
