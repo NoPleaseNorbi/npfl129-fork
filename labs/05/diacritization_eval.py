@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+#TEAM MEMBERS:
+# a652f90b-2220-11ec-986f-f39926f24a9c
+# 4ae50bd7-2516-11ec-986f-f39926f24a9c
+# 5212d2e4-2516-11ec-986f-f39926f24a9c
 
 def accuracy(gold: str, system: str) -> float:
     assert isinstance(gold, str) and isinstance(system, str), "The gold and system outputs must be strings"
